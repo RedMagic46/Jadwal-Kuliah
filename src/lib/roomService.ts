@@ -1,5 +1,6 @@
 import { Room } from '../app/types/schedule';
 import { mockRooms } from '../app/data/mockData';
+import { triggerStorageEvent } from './storageEvents';
 
 const STORAGE_KEY = 'app_rooms';
 
@@ -23,6 +24,7 @@ const getStoredRooms = (): Room[] => {
 const saveRooms = (rooms: Room[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
+    triggerStorageEvent(STORAGE_KEY);
   } catch (error) {
     console.error('Error saving rooms to localStorage:', error);
     throw new Error('Gagal menyimpan data ruangan');

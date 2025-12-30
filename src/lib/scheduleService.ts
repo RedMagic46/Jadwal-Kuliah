@@ -2,6 +2,7 @@ import { Schedule } from '../app/types/schedule';
 import { mockSchedules } from '../app/data/mockData';
 import { getCourses } from './courseService';
 import { getRooms } from './roomService';
+import { triggerStorageEvent } from './storageEvents';
 
 const STORAGE_KEY = 'app_schedules';
 
@@ -25,6 +26,7 @@ const getStoredSchedules = (): Schedule[] => {
 const saveSchedules = (schedules: Schedule[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(schedules));
+    triggerStorageEvent(STORAGE_KEY);
   } catch (error) {
     console.error('Error saving schedules to localStorage:', error);
     throw new Error('Gagal menyimpan data jadwal');

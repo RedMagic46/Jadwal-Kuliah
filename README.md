@@ -76,8 +76,6 @@ Aplikasi menggunakan **localStorage** untuk menyimpan semua data:
 - 📚 **Mata Kuliah** - Data mata kuliah (kode, nama, SKS, dosen)
 - 📅 **Jadwal Kuliah** - Data jadwal perkuliahan lengkap
 
-
-
 ---
 
 ## 🛠️ Tech Stack

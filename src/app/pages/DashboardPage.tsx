@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Calendar,
@@ -12,26 +12,41 @@ import {
   FileText,
   Users,
 } from 'lucide-react';
-import { mockSchedules, mockCourses } from '../data/mockData';
-import { detectConflicts } from '../utils/scheduleAlgorithm';
+import { detectConflicts, markConflicts } from '../utils/scheduleAlgorithm';
 import { useNavigate } from 'react-router-dom';
+import { useRealtimeSchedules } from '../../hooks/useRealtimeSchedules';
+import { useRealtimeCourses } from '../../hooks/useRealtimeCourses';
+import { useRealtimeRooms } from '../../hooks/useRealtimeRooms';
 
 export const DashboardPage: React.FC = () => {
   const { user, logout } = useAuth();
-  const [conflictCount, setConflictCount] = useState(0);
   const navigate = useNavigate();
+  
+  // Load data dari localStorage
+  const { schedules, loading: schedulesLoading } = useRealtimeSchedules();
+  const { courses, loading: coursesLoading } = useRealtimeCourses();
+  const { rooms, loading: roomsLoading } = useRealtimeRooms();
 
-  useEffect(() => {
-    const conflicts = detectConflicts(mockSchedules);
-    setConflictCount(conflicts.length);
-  }, []);
+  // Mark conflicts dan hitung statistik
+  const markedSchedules = useMemo(() => {
+    if (schedules.length === 0) return [];
+    return markConflicts(schedules);
+  }, [schedules]);
 
-  const stats = {
-    totalSchedules: mockSchedules.length,
-    conflictSchedules: conflictCount,
-    totalCourses: mockCourses.length,
-    totalRooms: new Set(mockSchedules.map((s) => s.roomName)).size,
-  };
+  const conflicts = useMemo(() => {
+    return detectConflicts(markedSchedules);
+  }, [markedSchedules]);
+
+  const stats = useMemo(() => {
+    return {
+      totalSchedules: markedSchedules.length,
+      conflictSchedules: conflicts.length,
+      totalCourses: courses.length,
+      totalRooms: rooms.length,
+    };
+  }, [markedSchedules, conflicts, courses, rooms]);
+
+  const loading = schedulesLoading || coursesLoading || roomsLoading;
 
   const handleLogout = () => {
     logout();
@@ -74,6 +89,19 @@ export const DashboardPage: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Memuat data...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Content - Only show when not loading */}
+        {!loading && (
+          <>
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
@@ -221,6 +249,8 @@ export const DashboardPage: React.FC = () => {
             </p>
           </button>
         </div>
+        </>
+        )}
       </main>
     </div>
   );

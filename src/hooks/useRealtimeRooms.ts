@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
-import { getSchedules } from '../lib/scheduleService';
-import { Schedule } from '../app/types/schedule';
+import { getRooms } from '../lib/roomService';
+import { Room } from '../app/types/schedule';
 
-export const useRealtimeSchedules = () => {
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+export const useRealtimeRooms = () => {
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadSchedules = async () => {
+  const loadRooms = async () => {
     try {
       setLoading(true);
-      const data = await getSchedules();
-      setSchedules(data);
+      const data = await getRooms();
+      setRooms(data);
     } catch (error) {
-      console.error('Error loading schedules:', error);
+      console.error('Error loading rooms:', error);
     } finally {
       setLoading(false);
     }
@@ -20,19 +20,19 @@ export const useRealtimeSchedules = () => {
 
   useEffect(() => {
     // Initial load
-    loadSchedules();
+    loadRooms();
 
     // Listen for storage events to sync across tabs
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'app_schedules') {
-        loadSchedules();
+      if (e.key === 'app_rooms') {
+        loadRooms();
       }
     };
 
     // Listen for custom events in the same tab
     const handleLocalStorageChange = (e: CustomEvent) => {
-      if (e.detail?.key === 'app_schedules') {
-        loadSchedules();
+      if (e.detail?.key === 'app_rooms') {
+        loadRooms();
       }
     };
 
@@ -45,7 +45,6 @@ export const useRealtimeSchedules = () => {
     };
   }, []);
 
-  return { schedules, loading, refresh: loadSchedules };
+  return { rooms, loading, refresh: loadRooms };
 };
-
 
