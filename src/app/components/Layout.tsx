@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   User,
+  BookOpen,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -36,6 +37,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       path: "/schedule",
       icon: Calendar,
       label: "Jadwal",
+    },
+    {
+      path: "/courses",
+      icon: BookOpen,
+      label: "Mata Kuliah",
     },
   ];
 

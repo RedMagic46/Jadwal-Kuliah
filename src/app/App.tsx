@@ -11,6 +11,7 @@ import { Toaster } from 'sonner';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { SchedulePage } from './pages/SchedulePage';
+import { CoursesPage } from './pages/CoursesPage';
 import { Layout } from './components/Layout';
 
 // Protected Route Component
@@ -52,6 +53,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <SchedulePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/courses"
+        element={
+          <ProtectedRoute>
+            <CoursesPage />
           </ProtectedRoute>
         }
       />
