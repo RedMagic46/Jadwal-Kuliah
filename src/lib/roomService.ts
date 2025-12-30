@@ -72,3 +72,4 @@ export const deleteRoom = async (id: string): Promise<void> => {
   if (error) throw error;
 };
 
+

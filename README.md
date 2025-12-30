@@ -1,8 +1,49 @@
-# Aplikasi Penjadwalan Kuliah
+# 📅 Aplikasi Penjadwalan Kuliah - InfoKHS
 
 Aplikasi web untuk mengelola jadwal kuliah dengan fitur deteksi bentrok otomatis dan auto-generate schedule.
 
-## 🚀 Quick Start
+🌐 **Website Live**: [jadwalkuliahkhs.online](https://jadwalkuliahkhs.online)
+
+---
+
+## 🌐 Akses Aplikasi
+
+**Website Production**: [jadwalkuliahkhs.online](https://jadwalkuliahkhs.online)
+
+Aplikasi sudah di-deploy dan dapat diakses secara langsung melalui website di atas. Tidak perlu install atau setup apapun, langsung buka dan gunakan!
+
+---
+
+## 🔐 Login Demo
+
+Aplikasi menggunakan mock authentication untuk demo. Login dapat dilakukan dengan NIM dan PIC bebas.
+
+---
+
+## 🎯 Fitur Utama
+
+### 1. Dashboard
+- 📊 Statistik jadwal, mata kuliah, dan ruangan
+- ⚠️ Notifikasi jadwal bentrok
+- 🎯 Quick actions untuk navigasi cepat
+
+### 2. Manajemen Jadwal
+- ✅ **Create**: Tambah jadwal baru
+- ✅ **Read**: Lihat jadwal dalam format kalender atau tabel
+- ✅ **Update**: Edit waktu, hari, atau ruangan
+- ✅ **Delete**: Hapus jadwal yang tidak diperlukan
+- 🔍 **Deteksi Bentrok**: Scan otomatis untuk jadwal yang bertabrakan
+- 🔄 **Auto-Generate**: Generate jadwal tabel otomatis
+- 📥 **Export PDF**: Download jadwal dalam format PDF
+
+### 3. Authentication & Authorization
+- 🔐 Role-based access (Admin/Dosen/Mahasiswa)
+- 👤 User management
+- 🔒 Protected routes
+
+---
+
+## 🚀 Quick Start (Development)
 
 ### Install Dependencies
 
@@ -25,36 +66,16 @@ Aplikasi akan berjalan di `http://localhost:5173`
 Aplikasi ini mendukung **2 mode**:
 
 ### Mode 1: Mock Data (Default)
-- Tidak perlu setup backend
-- Data disimpan di localStorage
-- Cocok untuk development dan demo
+- ✅ Tidak perlu setup backend
+- ✅ Data disimpan di localStorage
+- ✅ Cocok untuk development dan demo
+- ✅ **Mode ini digunakan di website production saat ini**
 
 ### Mode 2: Supabase Backend (Production)
-- Data persisten di database
-- Multi-user support
-- Realtime updates
-- Authentication real
-
-**Untuk setup Supabase**, ikuti panduan di [`SETUP_SUPABASE.md`](./SETUP_SUPABASE.md)
-
-**Quick Setup:**
-1. Buat project di [supabase.com](https://supabase.com)
-2. Copy credentials ke `.env.local`:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_anon_key
-   ```
-3. Setup database schema (lihat `SUPABASE_INTEGRATION.md`)
-4. Restart dev server
-
----
-
-## 📚 Dokumentasi
-
-- [`SETUP_SUPABASE.md`](./SETUP_SUPABASE.md) - Panduan setup Supabase
-- [`SUPABASE_INTEGRATION.md`](./SUPABASE_INTEGRATION.md) - Dokumentasi lengkap integrasi Supabase
-- [`DEPLOY_NOW.md`](./DEPLOY_NOW.md) - Panduan deployment
-- [`README_PENJADWALAN.md`](./README_PENJADWALAN.md) - Dokumentasi fitur aplikasi
+- ✅ Data persisten di database PostgreSQL
+- ✅ Multi-user support
+- ✅ Realtime updates
+- ✅ Authentication real
 
 ---
 
@@ -62,34 +83,45 @@ Aplikasi ini mendukung **2 mode**:
 
 - **Frontend**: React 18 + TypeScript
 - **Styling**: Tailwind CSS v4
-- **Backend**: Supabase (PostgreSQL)
-- **Build Tool**: Vite
+- **Backend**: Supabase (PostgreSQL) - Optional
+- **Build Tool**: Vite 6
 - **Routing**: React Router v7
+- **Icons**: Lucide React
+- **Notifications**: Sonner
+- **PDF Export**: jsPDF + jsPDF-AutoTable
 
 ---
 
-## 📝 Environment Variables
+## 📁 Struktur Project
 
-Buat file `.env.local` di root project:
-
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_anon_key
 ```
-
-Jika tidak ada file ini, aplikasi akan menggunakan mock data.
-
----
-
-## 🎯 Fitur Utama
-
-- ✅ CRUD Jadwal Kuliah
-- ✅ Deteksi Bentrok Otomatis
-- ✅ Auto-Generate Schedule
-- ✅ Calendar View & Table View
-- ✅ Export PDF
-- ✅ Role-based Authentication (Admin/Dosen/Mahasiswa)
-- ✅ Realtime Updates (dengan Supabase)
+src/
+├── app/
+│   ├── components/        # Komponen UI
+│   │   ├── Layout.tsx     # Layout dengan sidebar
+│   │   ├── ScheduleCalendar.tsx
+│   │   ├── ScheduleEditModal.tsx
+│   │   └── ui/            # Shadcn UI components
+│   ├── contexts/
+│   │   └── AuthContext.tsx
+│   ├── pages/
+│   │   ├── LoginPage.tsx
+│   │   ├── DashboardPage.tsx
+│   │   └── SchedulePage.tsx
+│   ├── types/
+│   │   └── schedule.ts
+│   └── utils/
+│       ├── scheduleAlgorithm.ts
+│       └── exportPDF.ts
+├── lib/                   # Supabase services
+│   ├── supabase.ts
+│   ├── auth.ts
+│   ├── scheduleService.ts
+│   ├── courseService.ts
+│   └── roomService.ts
+└── hooks/
+    └── useRealtimeSchedules.ts
+```
 
 ---
 
@@ -105,19 +137,62 @@ File production akan ada di folder `dist/`
 
 ## 🚀 Deployment
 
-Lihat panduan lengkap di [`DEPLOY_NOW.md`](./DEPLOY_NOW.md)
+Aplikasi sudah di-deploy di **jadwalkuliahkhs.online**
 
-**Quick Deploy:**
-1. Build aplikasi: `npm run build`
-2. Deploy folder `dist/` ke Vercel/Netlify
-3. Set environment variables di hosting provider
+### Untuk Deploy Ulang:
+
+1. **Build aplikasi**:
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy folder `dist/`** ke hosting provider:
+   - **Vercel**: Drag & drop folder `dist/` atau connect dengan GitHub
+   - **Netlify**: Drag & drop folder `dist/` atau connect dengan GitHub
+   - **Cloudflare Pages**: Connect dengan GitHub repository
+
+3. **Set Environment Variables** (jika menggunakan Supabase):
+   - Di hosting provider, tambahkan:
+     - `VITE_SUPABASE_URL`
+     - `VITE_SUPABASE_ANON_KEY`
+
+---
+
+## 🐛 Troubleshooting
+
+### Aplikasi tidak bisa diakses
+- Pastikan server development sudah running (`npm run dev`)
+- Cek apakah port 5173 sudah digunakan
+- Cek browser console untuk error
+
+### Data tidak muncul
+- Jika menggunakan Supabase, pastikan environment variables sudah benar
+- Jika menggunakan mock data, pastikan tidak ada error di console
+- Refresh halaman
 
 ---
 
 ## 📄 License
 
-MIT License
+MIT License - Bebas digunakan untuk pembelajaran dan produksi.
 
 ---
 
-**Original Design**: [Figma](https://www.figma.com/design/JU6znlDP5HXIN7lxtDXRlR/Aplikasi-Penjadwalan-Kuliah)
+## 👨‍💻 Development
+
+### Prerequisites
+- Node.js >= 18
+- npm atau pnpm
+
+### Available Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+
+---
+
+## 🔗 Links
+
+- 🌐 **Website**: [jadwalkuliahkhs.online](https://jadwalkuliahkhs.online)
+
+---
+
