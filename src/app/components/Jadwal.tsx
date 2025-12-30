@@ -291,7 +291,7 @@ export function Jadwal({ user, jadwalList, mataKuliah, ruangan, onUpdateJadwal }
                   <option value="">Pilih Ruangan</option>
                   {ruangan.map(r => (
                     <option key={r.id} value={r.id}>
-                      {r.kode} - {r.nama} (Kapasitas: {r.kapasitas})
+                      {r.kode} - {r.nama}
                     </option>
                   ))}
                 </select>

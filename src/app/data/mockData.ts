@@ -24,12 +24,22 @@ export const mockUsers: User[] = [
 
 // Mock Rooms
 export const mockRooms: Room[] = [
-  { id: 'room-1', name: 'A101', capacity: 40, building: 'Gedung A' },
-  { id: 'room-2', name: 'A102', capacity: 40, building: 'Gedung A' },
-  { id: 'room-3', name: 'B201', capacity: 50, building: 'Gedung B' },
-  { id: 'room-4', name: 'B202', capacity: 50, building: 'Gedung B' },
-  { id: 'room-5', name: 'C301', capacity: 30, building: 'Gedung C' },
-  { id: 'room-6', name: 'Lab 1', capacity: 25, building: 'Gedung Lab' },
+  { id: 'room-1', name: 'R208', capacity: 40, building: 'GKB I' },
+  { id: 'room-2', name: 'R215', capacity: 40, building: 'GKB I' },
+  { id: 'room-3', name: 'R308', capacity: 50, building: 'GKB II' },
+  { id: 'room-4', name: 'R401', capacity: 50, building: 'GKB II' },
+  { id: 'room-5', name: 'R403', capacity: 50, building: 'GKB II' },
+  { id: 'room-6', name: 'R316', capacity: 40, building: 'GKB III' },
+  { id: 'room-7', name: 'R610', capacity: 40, building: 'GKB III' },
+  { id: 'room-8', name: 'R611', capacity: 40, building: 'GKB III' },
+  { id: 'room-9', name: 'R612', capacity: 40, building: 'GKB III' },
+  { id: 'room-10', name: 'R601', capacity: 50, building: 'GKB IV' },
+  { id: 'room-11', name: 'R605', capacity: 50, building: 'GKB IV' },
+  { id: 'room-12', name: 'Masjid', capacity: 200, building: 'Fasilitas Umum' },
+  { id: 'room-13', name: 'Lab A/B', capacity: 30, building: 'Laboratorium' },
+  { id: 'room-14', name: 'Lab C/D', capacity: 30, building: 'Laboratorium' },
+  { id: 'room-15', name: 'Lab E/F', capacity: 30, building: 'Laboratorium' },
+  { id: 'room-16', name: 'Auditorium', capacity: 300, building: 'Fasilitas Umum' },
 ];
 
 // Mock Courses
@@ -101,7 +111,7 @@ export const mockSchedules: Schedule[] = [
     courseName: 'Pemrograman Dasar',
     courseCode: 'CS101',
     roomId: 'room-1',
-    roomName: 'A101',
+    roomName: 'R208',
     day: 'Monday',
     startTime: '07:00', // Jam ke-1
     endTime: '09:30',   // Sampai jam ke-3 end (3 SKS = jam 1,2,3)
@@ -114,7 +124,7 @@ export const mockSchedules: Schedule[] = [
     courseName: 'Struktur Data',
     courseCode: 'CS102',
     roomId: 'room-2',
-    roomName: 'A102',
+    roomName: 'R215',
     day: 'Monday',
     startTime: '07:00', // Jam ke-1
     endTime: '09:30',   // Sampai jam ke-3 end (3 SKS = jam 1,2,3)
@@ -127,7 +137,7 @@ export const mockSchedules: Schedule[] = [
     courseName: 'Algoritma',
     courseCode: 'CS201',
     roomId: 'room-2',
-    roomName: 'A102',
+    roomName: 'R215',
     day: 'Monday',
     startTime: '09:30', // Jam ke-4
     endTime: '12:00',   // Sampai jam ke-6 end (3 SKS = jam 4,5,6)
@@ -140,7 +150,7 @@ export const mockSchedules: Schedule[] = [
     courseName: 'Basis Data',
     courseCode: 'CS202',
     roomId: 'room-3',
-    roomName: 'B201',
+    roomName: 'R308',
     day: 'Tuesday',
     startTime: '07:00', // Jam ke-1
     endTime: '09:30',   // Sampai jam ke-3 end (3 SKS = jam 1,2,3)
@@ -153,7 +163,7 @@ export const mockSchedules: Schedule[] = [
     courseName: 'Sistem Operasi',
     courseCode: 'CS301',
     roomId: 'room-4',
-    roomName: 'B202',
+    roomName: 'R401',
     day: 'Tuesday',
     startTime: '07:50', // Jam ke-2
     endTime: '10:20',   // Sampai jam ke-4 end (3 SKS = jam 2,3,4)
@@ -166,7 +176,7 @@ export const mockSchedules: Schedule[] = [
     courseName: 'Jaringan Komputer',
     courseCode: 'CS302',
     roomId: 'room-5',
-    roomName: 'C301',
+    roomName: 'R403',
     day: 'Wednesday',
     startTime: '12:30', // Jam ke-7
     endTime: '15:00',   // Sampai jam ke-9 end (3 SKS = jam 7,8,9)

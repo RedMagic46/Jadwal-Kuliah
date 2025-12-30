@@ -226,7 +226,7 @@ export const ScheduleEditModal: React.FC<ScheduleEditModalProps> = ({
             >
               {mockRooms.map((room) => (
                 <option key={room.id} value={room.id}>
-                  {room.name} - {room.building} (Kapasitas: {room.capacity})
+                  {room.name} - {room.building}
                 </option>
               ))}
             </select>
