@@ -35,10 +35,10 @@ export const mockRooms: Room[] = [
   { id: 'room-9', name: 'R612', capacity: 40, building: 'GKB III' },
   { id: 'room-10', name: 'R601', capacity: 50, building: 'GKB IV' },
   { id: 'room-11', name: 'R605', capacity: 50, building: 'GKB IV' },
-  { id: 'room-12', name: 'Masjid', capacity: 200, building: 'Fasilitas Umum' },
-  { id: 'room-13', name: 'Lab A/B', capacity: 30, building: 'Laboratorium' },
-  { id: 'room-14', name: 'Lab C/D', capacity: 30, building: 'Laboratorium' },
-  { id: 'room-15', name: 'Lab E/F', capacity: 30, building: 'Laboratorium' },
+  { id: 'room-12', name: 'Masjid', capacity: 40, building: 'Fasilitas Umum' },
+  { id: 'room-13', name: 'Lab A/B', capacity: 50, building: 'Laboratorium' },
+  { id: 'room-14', name: 'Lab C/D', capacity: 50, building: 'Laboratorium' },
+  { id: 'room-15', name: 'Lab E/F', capacity: 50, building: 'Laboratorium' },
   { id: 'room-16', name: 'Auditorium', capacity: 300, building: 'Fasilitas Umum' },
 ];
 
@@ -48,57 +48,50 @@ export const mockCourses: Course[] = [
     id: 'course-1',
     code: 'CS101',
     name: 'Pemrograman Dasar',
-    credits: 3,
-    lecturer: 'Dr. Budi Santoso',
+    credits: 2,
+    lecturer: 'Arkaan',
   },
   {
     id: 'course-2',
     code: 'CS102',
     name: 'Struktur Data',
-    credits: 3,
-    lecturer: 'Dr. Ani Widodo',
+    credits: 2,
+    lecturer: 'Juan',
   },
   {
     id: 'course-3',
     code: 'CS201',
     name: 'Algoritma',
-    credits: 3,
-    lecturer: 'Dr. Citra Dewi',
+    credits: 2,
+    lecturer: 'Syahrial',
   },
   {
     id: 'course-4',
     code: 'CS202',
     name: 'Basis Data',
-    credits: 3,
-    lecturer: 'Dr. Dedi Rahman',
+    credits: 2,
+    lecturer: 'Fahmi',
   },
   {
     id: 'course-5',
     code: 'CS301',
     name: 'Sistem Operasi',
-    credits: 3,
-    lecturer: 'Dr. Eko Prasetyo',
+    credits: 2,
+    lecturer: 'Rizky',
   },
   {
     id: 'course-6',
     code: 'CS302',
     name: 'Jaringan Komputer',
-    credits: 3,
-    lecturer: 'Dr. Fitri Handayani',
+    credits: 2,
+    lecturer: 'Robi',
   },
   {
     id: 'course-7',
     code: 'MTK101',
     name: 'Kalkulus I',
-    credits: 3,
-    lecturer: 'Dr. Gunawan',
-  },
-  {
-    id: 'course-8',
-    code: 'MTK102',
-    name: 'Aljabar Linear',
-    credits: 3,
-    lecturer: 'Dr. Hani Sari',
+    credits: 2,
+    lecturer: 'Mail',
   },
 ];
 
@@ -115,7 +108,7 @@ export const mockSchedules: Schedule[] = [
     day: 'Monday',
     startTime: '07:00', // Jam ke-1
     endTime: '09:30',   // Sampai jam ke-3 end (3 SKS = jam 1,2,3)
-    lecturer: 'Dr. Budi Santoso',
+    lecturer: 'Arkaan',
     hasConflict: false,
   },
   {
@@ -128,7 +121,7 @@ export const mockSchedules: Schedule[] = [
     day: 'Monday',
     startTime: '07:00', // Jam ke-1
     endTime: '09:30',   // Sampai jam ke-3 end (3 SKS = jam 1,2,3)
-    lecturer: 'Dr. Ani Widodo',
+    lecturer: 'Juan',
     hasConflict: true, // ❌ BENTROK: Waktu sama dengan sch-1
   },
   {
@@ -141,7 +134,7 @@ export const mockSchedules: Schedule[] = [
     day: 'Monday',
     startTime: '09:30', // Jam ke-4
     endTime: '12:00',   // Sampai jam ke-6 end (3 SKS = jam 4,5,6)
-    lecturer: 'Dr. Citra Dewi',
+    lecturer: 'Syahrial',
     hasConflict: false,
   },
   {
@@ -154,7 +147,7 @@ export const mockSchedules: Schedule[] = [
     day: 'Tuesday',
     startTime: '07:00', // Jam ke-1
     endTime: '09:30',   // Sampai jam ke-3 end (3 SKS = jam 1,2,3)
-    lecturer: 'Dr. Dedi Rahman',
+    lecturer: 'Fahmi',
     hasConflict: false,
   },
   {
@@ -167,7 +160,7 @@ export const mockSchedules: Schedule[] = [
     day: 'Tuesday',
     startTime: '07:50', // Jam ke-2
     endTime: '10:20',   // Sampai jam ke-4 end (3 SKS = jam 2,3,4)
-    lecturer: 'Dr. Eko Prasetyo',
+    lecturer: 'Rizky',
     hasConflict: true, // ❌ BENTROK: Waktu overlap dengan sch-4 (jam 2 dan 3)
   },
   {
@@ -180,7 +173,7 @@ export const mockSchedules: Schedule[] = [
     day: 'Wednesday',
     startTime: '12:30', // Jam ke-7
     endTime: '15:00',   // Sampai jam ke-9 end (3 SKS = jam 7,8,9)
-    lecturer: 'Dr. Fitri Handayani',
+    lecturer: 'Robi',
     hasConflict: false,
   },
 ];
