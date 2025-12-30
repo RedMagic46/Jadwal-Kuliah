@@ -61,21 +61,22 @@ Aplikasi akan berjalan di `http://localhost:5173`
 
 ---
 
-## 🔧 Setup Backend (Supabase)
+## 💾 Penyimpanan Data
 
-Aplikasi ini mendukung **2 mode**:
+Aplikasi menggunakan **localStorage** untuk menyimpan semua data:
 
-### Mode 1: Mock Data (Default)
-- ✅ Tidak perlu setup backend
-- ✅ Data disimpan di localStorage
-- ✅ Cocok untuk development dan demo
-- ✅ **Mode ini digunakan di website production saat ini**
+- ✅ **Tidak perlu setup backend** - Aplikasi berjalan 100% di frontend
+- ✅ **Data persisten** - Data tersimpan di browser localStorage
+- ✅ **Sinkronisasi antar tab** - Perubahan di satu tab terlihat di tab lain
+- ✅ **Inisialisasi otomatis** - Menggunakan mock data saat pertama kali digunakan
+- ✅ **CRUD lengkap** - Create, Read, Update, Delete untuk semua data (ruangan, mata kuliah, jadwal)
 
-### Mode 2: Supabase Backend (Production)
-- ✅ Data persisten di database PostgreSQL
-- ✅ Multi-user support
-- ✅ Realtime updates
-- ✅ Authentication real
+### Data yang Disimpan:
+- 📁 **Ruangan** - Data ruangan kuliah (kode, nama, kapasitas, gedung)
+- 📚 **Mata Kuliah** - Data mata kuliah (kode, nama, SKS, dosen)
+- 📅 **Jadwal Kuliah** - Data jadwal perkuliahan lengkap
+
+
 
 ---
 
@@ -83,7 +84,7 @@ Aplikasi ini mendukung **2 mode**:
 
 - **Frontend**: React 18 + TypeScript
 - **Styling**: Tailwind CSS v4
-- **Backend**: Supabase (PostgreSQL) - Optional
+- **Storage**: Browser localStorage
 - **Build Tool**: Vite 6
 - **Routing**: React Router v7
 - **Icons**: Lucide React
@@ -113,12 +114,12 @@ src/
 │   └── utils/
 │       ├── scheduleAlgorithm.ts
 │       └── exportPDF.ts
-├── lib/                   # Supabase services
-│   ├── supabase.ts
+├── lib/                   # Data services (localStorage)
+│   ├── supabase.ts        # (Legacy - tidak digunakan)
 │   ├── auth.ts
-│   ├── scheduleService.ts
-│   ├── courseService.ts
-│   └── roomService.ts
+│   ├── scheduleService.ts # Service untuk jadwal (localStorage)
+│   ├── courseService.ts   # Service untuk mata kuliah (localStorage)
+│   └── roomService.ts     # Service untuk ruangan (localStorage)
 └── hooks/
     └── useRealtimeSchedules.ts
 ```
@@ -151,10 +152,7 @@ Aplikasi sudah di-deploy di **jadwalkuliahkhs.online**
    - **Netlify**: Drag & drop folder `dist/` atau connect dengan GitHub
    - **Cloudflare Pages**: Connect dengan GitHub repository
 
-3. **Set Environment Variables** (jika menggunakan Supabase):
-   - Di hosting provider, tambahkan:
-     - `VITE_SUPABASE_URL`
-     - `VITE_SUPABASE_ANON_KEY`
+> **Tidak perlu setup environment variables** - Aplikasi menggunakan localStorage dan tidak memerlukan konfigurasi backend.
 
 ---
 
@@ -166,9 +164,10 @@ Aplikasi sudah di-deploy di **jadwalkuliahkhs.online**
 - Cek browser console untuk error
 
 ### Data tidak muncul
-- Jika menggunakan Supabase, pastikan environment variables sudah benar
-- Jika menggunakan mock data, pastikan tidak ada error di console
-- Refresh halaman
+- Pastikan tidak ada error di browser console
+- Cek apakah localStorage browser tidak di-disable
+- Coba clear cache dan refresh halaman
+- Data akan diinisialisasi dengan mock data saat pertama kali digunakan
 
 ---
 

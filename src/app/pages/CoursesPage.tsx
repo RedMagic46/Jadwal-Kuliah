@@ -9,23 +9,10 @@ import {
 } from 'lucide-react';
 import { Course } from '../types/schedule';
 import { getCourses, createCourse, updateCourse, deleteCourse } from '../../lib/courseService';
-import { mockCourses } from '../data/mockData';
 import { toast } from 'sonner';
 import { CourseModal } from '../components/CourseModal';
 
-// Check if Supabase is configured
-const isSupabaseConfigured = () => {
-  try {
-    const url = import.meta.env.VITE_SUPABASE_URL;
-    const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    return !!(url && key && url !== 'your_supabase_url' && key !== 'your_anon_key');
-  } catch {
-    return false;
-  }
-};
-
 export const CoursesPage: React.FC = () => {
-  const useSupabase = isSupabaseConfigured();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,18 +22,11 @@ export const CoursesPage: React.FC = () => {
   const loadCourses = async () => {
     try {
       setLoading(true);
-      if (useSupabase) {
-        const data = await getCourses();
-        setCourses(data);
-      } else {
-        // Fallback to mock data
-        setCourses(mockCourses);
-      }
+      const data = await getCourses();
+      setCourses(data);
     } catch (error) {
       console.error('Error loading courses:', error);
       toast.error('Gagal memuat data mata kuliah');
-      // Fallback to mock data on error
-      setCourses(mockCourses);
     } finally {
       setLoading(false);
     }
@@ -54,8 +34,7 @@ export const CoursesPage: React.FC = () => {
 
   useEffect(() => {
     loadCourses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useSupabase]);
+  }, []);
 
   const handleCreate = () => {
     setSelectedCourse(null);
@@ -73,15 +52,9 @@ export const CoursesPage: React.FC = () => {
     }
 
     try {
-      if (useSupabase) {
-        await deleteCourse(id);
-        await loadCourses();
-        toast.success('Mata kuliah berhasil dihapus');
-      } else {
-        // Mock delete
-        setCourses(courses.filter((c) => c.id !== id));
-        toast.success('Mata kuliah berhasil dihapus');
-      }
+      await deleteCourse(id);
+      await loadCourses();
+      toast.success('Mata kuliah berhasil dihapus');
     } catch (error) {
       console.error('Error deleting course:', error);
       toast.error('Gagal menghapus mata kuliah');
@@ -95,42 +68,20 @@ export const CoursesPage: React.FC = () => {
     lecturer?: string;
   }) => {
     try {
-      if (useSupabase) {
-        if (selectedCourse) {
-          // Update
-          await updateCourse(selectedCourse.id, courseData);
-          toast.success('Mata kuliah berhasil diperbarui');
-        } else {
-          // Create
-          await createCourse({
-            code: courseData.code,
-            name: courseData.name,
-            credits: courseData.credits,
-          });
-          toast.success('Mata kuliah berhasil ditambahkan');
-        }
-        await loadCourses();
+      if (selectedCourse) {
+        // Update
+        await updateCourse(selectedCourse.id, courseData);
+        toast.success('Mata kuliah berhasil diperbarui');
       } else {
-        // Mock save
-        if (selectedCourse) {
-          setCourses(
-            courses.map((c) =>
-              c.id === selectedCourse.id
-                ? { ...c, ...courseData }
-                : c
-            )
-          );
-          toast.success('Mata kuliah berhasil diperbarui');
-        } else {
-          const newCourse: Course = {
-            id: `course-${Date.now()}`,
-            ...courseData,
-            lecturer: courseData.lecturer || '',
-          };
-          setCourses([...courses, newCourse]);
-          toast.success('Mata kuliah berhasil ditambahkan');
-        }
+        // Create
+        await createCourse({
+          code: courseData.code,
+          name: courseData.name,
+          credits: courseData.credits,
+        });
+        toast.success('Mata kuliah berhasil ditambahkan');
       }
+      await loadCourses();
       setIsModalOpen(false);
       setSelectedCourse(null);
     } catch (error) {

@@ -1,25 +1,43 @@
-import { supabase } from './supabase';
 import { Room } from '../app/types/schedule';
+import { mockRooms } from '../app/data/mockData';
 
-const transformRoom = (room: any): Room => {
-  return {
-    id: room.id,
-    name: room.name,
-    building: room.building,
-    capacity: room.capacity,
-  };
+const STORAGE_KEY = 'app_rooms';
+
+// Helper functions untuk localStorage
+const getStoredRooms = (): Room[] => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Error reading rooms from localStorage:', error);
+  }
+  
+  // Initialize dengan mock data jika belum ada
+  const initialRooms = [...mockRooms];
+  saveRooms(initialRooms);
+  return initialRooms;
+};
+
+const saveRooms = (rooms: Room[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
+  } catch (error) {
+    console.error('Error saving rooms to localStorage:', error);
+    throw new Error('Gagal menyimpan data ruangan');
+  }
 };
 
 export const getRooms = async (): Promise<Room[]> => {
-  const { data, error } = await supabase
-    .from('rooms')
-    .select('*')
-    .order('building', { ascending: true })
-    .order('name', { ascending: true });
-
-  if (error) throw error;
-
-  return data.map(transformRoom);
+  const rooms = getStoredRooms();
+  // Sort by building, then by name
+  return rooms.sort((a, b) => {
+    if (a.building !== b.building) {
+      return a.building.localeCompare(b.building);
+    }
+    return a.name.localeCompare(b.name);
+  });
 };
 
 export const createRoom = async (roomData: {
@@ -28,48 +46,44 @@ export const createRoom = async (roomData: {
   capacity: number;
   facilities?: string;
 }): Promise<Room> => {
-  const { data, error } = await supabase
-    .from('rooms')
-    .insert({
-      name: roomData.name,
-      building: roomData.building,
-      capacity: roomData.capacity,
-      facilities: roomData.facilities,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-
-  return transformRoom(data);
+  const rooms = getStoredRooms();
+  const newRoom: Room = {
+    id: `room-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    name: roomData.name,
+    building: roomData.building,
+    capacity: roomData.capacity,
+  };
+  
+  rooms.push(newRoom);
+  saveRooms(rooms);
+  return newRoom;
 };
 
 export const updateRoom = async (
   id: string,
   updates: Partial<Room>
 ): Promise<Room> => {
-  const updateData: any = {};
-
-  if (updates.name) updateData.name = updates.name;
-  if (updates.building) updateData.building = updates.building;
-  if (updates.capacity !== undefined) updateData.capacity = updates.capacity;
-
-  const { data, error } = await supabase
-    .from('rooms')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-
-  return transformRoom(data);
+  const rooms = getStoredRooms();
+  const index = rooms.findIndex(r => r.id === id);
+  
+  if (index === -1) {
+    throw new Error('Ruangan tidak ditemukan');
+  }
+  
+  rooms[index] = { ...rooms[index], ...updates };
+  saveRooms(rooms);
+  return rooms[index];
 };
 
 export const deleteRoom = async (id: string): Promise<void> => {
-  const { error } = await supabase.from('rooms').delete().eq('id', id);
-
-  if (error) throw error;
+  const rooms = getStoredRooms();
+  const filtered = rooms.filter(r => r.id !== id);
+  
+  if (filtered.length === rooms.length) {
+    throw new Error('Ruangan tidak ditemukan');
+  }
+  
+  saveRooms(filtered);
 };
 
 

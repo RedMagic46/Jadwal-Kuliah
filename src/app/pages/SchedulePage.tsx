@@ -9,7 +9,6 @@ import {
   Download,
 } from 'lucide-react';
 import { Schedule } from '../types/schedule';
-import { mockSchedules, mockCourses, mockRooms } from '../data/mockData';
 import {
   detectConflicts,
   generateSchedule,
@@ -23,23 +22,11 @@ import { toast } from 'sonner';
 import { getSchedules, createSchedule, updateSchedule, deleteSchedule } from '../../lib/scheduleService';
 import { useRealtimeSchedules } from '../../hooks/useRealtimeSchedules';
 
-// Check if Supabase is configured
-const isSupabaseConfigured = () => {
-  try {
-    const url = import.meta.env.VITE_SUPABASE_URL;
-    const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    return !!(url && key && url !== 'your_supabase_url' && key !== 'your_anon_key');
-  } catch {
-    return false;
-  }
-};
-
 export const SchedulePage: React.FC = () => {
-  const useSupabase = isSupabaseConfigured();
   const { schedules: realtimeSchedules, loading: realtimeLoading, refresh: refreshSchedules } = useRealtimeSchedules();
   
-  const [schedules, setSchedules] = useState<Schedule[]>(useSupabase ? [] : mockSchedules);
-  const [loading, setLoading] = useState(useSupabase);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showGeneratedTable, setShowGeneratedTable] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
     null
@@ -48,20 +35,12 @@ export const SchedulePage: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (useSupabase) {
-      if (!realtimeLoading && realtimeSchedules.length > 0) {
-        const markedSchedules = markConflicts(realtimeSchedules);
-        setSchedules(markedSchedules);
-        setLoading(false);
-      } else if (!realtimeLoading) {
-        setLoading(false);
-      }
-    } else {
-      // Mark conflicts on mount for mock data
-      const markedSchedules = markConflicts(schedules);
+    if (!realtimeLoading) {
+      const markedSchedules = markConflicts(realtimeSchedules);
       setSchedules(markedSchedules);
+      setLoading(false);
     }
-  }, [useSupabase, realtimeSchedules, realtimeLoading]);
+  }, [realtimeSchedules, realtimeLoading]);
 
   const handleDetectConflicts = () => {
     const conflicts = detectConflicts(schedules);
@@ -102,16 +81,9 @@ export const SchedulePage: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) {
       try {
-        if (useSupabase) {
-          await deleteSchedule(id);
-          await refreshSchedules();
-          toast.success('Jadwal berhasil dihapus');
-        } else {
-          const updatedSchedules = schedules.filter((s) => s.id !== id);
-          const markedSchedules = markConflicts(updatedSchedules);
-          setSchedules(markedSchedules);
-          toast.success('Jadwal berhasil dihapus');
-        }
+        await deleteSchedule(id);
+        await refreshSchedules();
+        toast.success('Jadwal berhasil dihapus');
         
         // Jika sedang menampilkan tabel, hide dulu karena data sudah berubah
         if (showGeneratedTable) {
@@ -128,38 +100,22 @@ export const SchedulePage: React.FC = () => {
     const isNewSchedule = !schedules.find(s => s.id === updatedSchedule.id);
     
     try {
-      if (useSupabase) {
-        if (isNewSchedule) {
-          // Create new schedule
-          await createSchedule({
-            courseId: updatedSchedule.courseId,
-            roomId: updatedSchedule.roomId,
-            day: updatedSchedule.day,
-            startTime: updatedSchedule.startTime,
-            endTime: updatedSchedule.endTime,
-          });
-          await refreshSchedules();
-          toast.success('Jadwal berhasil ditambahkan!');
-        } else {
-          // Update existing schedule
-          await updateSchedule(updatedSchedule.id, updatedSchedule);
-          await refreshSchedules();
-          toast.success('Jadwal berhasil diperbarui');
-        }
+      if (isNewSchedule) {
+        // Create new schedule
+        await createSchedule({
+          courseId: updatedSchedule.courseId,
+          roomId: updatedSchedule.roomId,
+          day: updatedSchedule.day,
+          startTime: updatedSchedule.startTime,
+          endTime: updatedSchedule.endTime,
+        });
+        await refreshSchedules();
+        toast.success('Jadwal berhasil ditambahkan!');
       } else {
-        // Mock data fallback
-        let updatedSchedules: Schedule[];
-        if (isNewSchedule) {
-          updatedSchedules = [...schedules, updatedSchedule];
-        } else {
-          updatedSchedules = schedules.map((s) =>
-            s.id === updatedSchedule.id ? updatedSchedule : s
-          );
-        }
-        
-        const markedSchedules = markConflicts(updatedSchedules);
-        setSchedules(markedSchedules);
-        toast.success(isNewSchedule ? 'Jadwal berhasil ditambahkan!' : 'Jadwal berhasil diperbarui');
+        // Update existing schedule
+        await updateSchedule(updatedSchedule.id, updatedSchedule);
+        await refreshSchedules();
+        toast.success('Jadwal berhasil diperbarui');
       }
       
       setIsEditModalOpen(false);

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { getSchedules } from '../lib/scheduleService';
 import { Schedule } from '../app/types/schedule';
 
@@ -20,40 +19,20 @@ export const useRealtimeSchedules = () => {
   };
 
   useEffect(() => {
-    // Check if Supabase is configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    const isConfigured = !!(supabaseUrl && supabaseKey && 
-      supabaseUrl !== 'your_supabase_url' && 
-      supabaseKey !== 'your_anon_key');
-
-    if (!isConfigured) {
-      setLoading(false);
-      return;
-    }
-
     // Initial load
     loadSchedules();
 
-    // Subscribe to changes
-    const channel = supabase
-      .channel('schedules-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'schedules',
-        },
-        (payload) => {
-          console.log('Schedule changed:', payload);
-          loadSchedules(); // Reload schedules
-        }
-      )
-      .subscribe();
+    // Listen for storage events to sync across tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'app_schedules') {
+        loadSchedules();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      supabase.removeChannel(channel);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 

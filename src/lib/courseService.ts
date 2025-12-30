@@ -1,30 +1,38 @@
-import { supabase } from './supabase';
 import { Course } from '../app/types/schedule';
+import { mockCourses } from '../app/data/mockData';
 
-const transformCourse = (course: any): Course => {
-  return {
-    id: course.id,
-    code: course.code,
-    name: course.name,
-    credits: course.credits,
-    lecturer: course.lecturer?.name || course.lecturer_name || '',
-  };
+const STORAGE_KEY = 'app_courses';
+
+// Helper functions untuk localStorage
+const getStoredCourses = (): Course[] => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Error reading courses from localStorage:', error);
+  }
+  
+  // Initialize dengan mock data jika belum ada
+  const initialCourses = [...mockCourses];
+  saveCourses(initialCourses);
+  return initialCourses;
+};
+
+const saveCourses = (courses: Course[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+  } catch (error) {
+    console.error('Error saving courses to localStorage:', error);
+    throw new Error('Gagal menyimpan data mata kuliah');
+  }
 };
 
 export const getCourses = async (): Promise<Course[]> => {
-  const { data, error } = await supabase
-    .from('courses')
-    .select(
-      `
-      *,
-      lecturer:users!courses_lecturer_id_fkey(name)
-    `
-    )
-    .order('code', { ascending: true });
-
-  if (error) throw error;
-
-  return data.map(transformCourse);
+  const courses = getStoredCourses();
+  // Sort by code
+  return courses.sort((a, b) => a.code.localeCompare(b.code));
 };
 
 export const createCourse = async (courseData: {
@@ -35,61 +43,45 @@ export const createCourse = async (courseData: {
   semester?: number;
   description?: string;
 }): Promise<Course> => {
-  const { data, error } = await supabase
-    .from('courses')
-    .insert({
-      code: courseData.code,
-      name: courseData.name,
-      credits: courseData.credits,
-      lecturer_id: courseData.lecturerId || null,
-      semester: courseData.semester,
-      description: courseData.description,
-    })
-    .select(
-      `
-      *,
-      lecturer:users!courses_lecturer_id_fkey(name)
-    `
-    )
-    .single();
-
-  if (error) throw error;
-
-  return transformCourse(data);
+  const courses = getStoredCourses();
+  const newCourse: Course = {
+    id: `course-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    code: courseData.code,
+    name: courseData.name,
+    credits: courseData.credits,
+    lecturer: courseData.lecturerId || '', // For now, store lecturer name directly
+  };
+  
+  courses.push(newCourse);
+  saveCourses(courses);
+  return newCourse;
 };
 
 export const updateCourse = async (
   id: string,
   updates: Partial<Course>
 ): Promise<Course> => {
-  const updateData: any = {};
-
-  if (updates.code) updateData.code = updates.code;
-  if (updates.name) updateData.name = updates.name;
-  if (updates.credits !== undefined) updateData.credits = updates.credits;
-  // Note: lecturer update would need lecturer_id, not lecturer name
-
-  const { data, error } = await supabase
-    .from('courses')
-    .update(updateData)
-    .eq('id', id)
-    .select(
-      `
-      *,
-      lecturer:users!courses_lecturer_id_fkey(name)
-    `
-    )
-    .single();
-
-  if (error) throw error;
-
-  return transformCourse(data);
+  const courses = getStoredCourses();
+  const index = courses.findIndex(c => c.id === id);
+  
+  if (index === -1) {
+    throw new Error('Mata kuliah tidak ditemukan');
+  }
+  
+  courses[index] = { ...courses[index], ...updates };
+  saveCourses(courses);
+  return courses[index];
 };
 
 export const deleteCourse = async (id: string): Promise<void> => {
-  const { error } = await supabase.from('courses').delete().eq('id', id);
-
-  if (error) throw error;
+  const courses = getStoredCourses();
+  const filtered = courses.filter(c => c.id !== id);
+  
+  if (filtered.length === courses.length) {
+    throw new Error('Mata kuliah tidak ditemukan');
+  }
+  
+  saveCourses(filtered);
 };
 
 
