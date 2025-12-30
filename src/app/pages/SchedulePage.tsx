@@ -20,9 +20,26 @@ import { ScheduleCalendar } from '../components/ScheduleCalendar';
 import { ScheduleTableView } from '../components/ScheduleTableView';
 import { ScheduleEditModal } from '../components/ScheduleEditModal';
 import { toast } from 'sonner';
+import { getSchedules, createSchedule, updateSchedule, deleteSchedule } from '../../lib/scheduleService';
+import { useRealtimeSchedules } from '../../hooks/useRealtimeSchedules';
+
+// Check if Supabase is configured
+const isSupabaseConfigured = () => {
+  try {
+    const url = import.meta.env.VITE_SUPABASE_URL;
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    return !!(url && key && url !== 'your_supabase_url' && key !== 'your_anon_key');
+  } catch {
+    return false;
+  }
+};
 
 export const SchedulePage: React.FC = () => {
-  const [schedules, setSchedules] = useState<Schedule[]>(mockSchedules);
+  const useSupabase = isSupabaseConfigured();
+  const { schedules: realtimeSchedules, loading: realtimeLoading, refresh: refreshSchedules } = useRealtimeSchedules();
+  
+  const [schedules, setSchedules] = useState<Schedule[]>(useSupabase ? [] : mockSchedules);
+  const [loading, setLoading] = useState(useSupabase);
   const [showGeneratedTable, setShowGeneratedTable] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
     null
@@ -31,10 +48,20 @@ export const SchedulePage: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Mark conflicts on mount
-    const markedSchedules = markConflicts(schedules);
-    setSchedules(markedSchedules);
-  }, []);
+    if (useSupabase) {
+      if (!realtimeLoading && realtimeSchedules.length > 0) {
+        const markedSchedules = markConflicts(realtimeSchedules);
+        setSchedules(markedSchedules);
+        setLoading(false);
+      } else if (!realtimeLoading) {
+        setLoading(false);
+      }
+    } else {
+      // Mark conflicts on mount for mock data
+      const markedSchedules = markConflicts(schedules);
+      setSchedules(markedSchedules);
+    }
+  }, [useSupabase, realtimeSchedules, realtimeLoading]);
 
   const handleDetectConflicts = () => {
     const conflicts = detectConflicts(schedules);
@@ -72,46 +99,82 @@ export const SchedulePage: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) {
-      const updatedSchedules = schedules.filter((s) => s.id !== id);
-      const markedSchedules = markConflicts(updatedSchedules);
-      setSchedules(markedSchedules);
+      try {
+        if (useSupabase) {
+          await deleteSchedule(id);
+          await refreshSchedules();
+          toast.success('Jadwal berhasil dihapus');
+        } else {
+          const updatedSchedules = schedules.filter((s) => s.id !== id);
+          const markedSchedules = markConflicts(updatedSchedules);
+          setSchedules(markedSchedules);
+          toast.success('Jadwal berhasil dihapus');
+        }
+        
+        // Jika sedang menampilkan tabel, hide dulu karena data sudah berubah
+        if (showGeneratedTable) {
+          setShowGeneratedTable(false);
+        }
+      } catch (error) {
+        console.error('Error deleting schedule:', error);
+        toast.error('Gagal menghapus jadwal');
+      }
+    }
+  };
+
+  const handleSave = async (updatedSchedule: Schedule) => {
+    const isNewSchedule = !schedules.find(s => s.id === updatedSchedule.id);
+    
+    try {
+      if (useSupabase) {
+        if (isNewSchedule) {
+          // Create new schedule
+          await createSchedule({
+            courseId: updatedSchedule.courseId,
+            roomId: updatedSchedule.roomId,
+            day: updatedSchedule.day,
+            startTime: updatedSchedule.startTime,
+            endTime: updatedSchedule.endTime,
+          });
+          await refreshSchedules();
+          toast.success('Jadwal berhasil ditambahkan!');
+        } else {
+          // Update existing schedule
+          await updateSchedule(updatedSchedule.id, updatedSchedule);
+          await refreshSchedules();
+          toast.success('Jadwal berhasil diperbarui');
+        }
+      } else {
+        // Mock data fallback
+        let updatedSchedules: Schedule[];
+        if (isNewSchedule) {
+          updatedSchedules = [...schedules, updatedSchedule];
+        } else {
+          updatedSchedules = schedules.map((s) =>
+            s.id === updatedSchedule.id ? updatedSchedule : s
+          );
+        }
+        
+        const markedSchedules = markConflicts(updatedSchedules);
+        setSchedules(markedSchedules);
+        toast.success(isNewSchedule ? 'Jadwal berhasil ditambahkan!' : 'Jadwal berhasil diperbarui');
+      }
+      
+      setIsEditModalOpen(false);
+      setSelectedSchedule(null);
       
       // Jika sedang menampilkan tabel, hide dulu karena data sudah berubah
       if (showGeneratedTable) {
         setShowGeneratedTable(false);
+        if (isNewSchedule) {
+          toast.info('Silakan generate ulang tabel.');
+        }
       }
-      
-      toast.success('Jadwal berhasil dihapus');
-    }
-  };
-
-  const handleSave = (updatedSchedule: Schedule) => {
-    const isNewSchedule = !schedules.find(s => s.id === updatedSchedule.id);
-    
-    let updatedSchedules: Schedule[];
-    if (isNewSchedule) {
-      // Tambah jadwal baru
-      updatedSchedules = [...schedules, updatedSchedule];
-    } else {
-      // Update jadwal yang sudah ada
-      updatedSchedules = schedules.map((s) =>
-        s.id === updatedSchedule.id ? updatedSchedule : s
-      );
-    }
-    
-    const markedSchedules = markConflicts(updatedSchedules);
-    setSchedules(markedSchedules);
-    setIsEditModalOpen(false);
-    setSelectedSchedule(null);
-    
-    // Jika sedang menampilkan tabel, hide dulu karena data sudah berubah
-    if (showGeneratedTable) {
-      setShowGeneratedTable(false);
-      toast.success(isNewSchedule ? 'Jadwal berhasil ditambahkan. Silakan generate ulang tabel.' : 'Jadwal berhasil diperbarui. Silakan generate ulang tabel.');
-    } else {
-      toast.success(isNewSchedule ? 'Jadwal berhasil ditambahkan!' : 'Jadwal berhasil diperbarui');
+    } catch (error) {
+      console.error('Error saving schedule:', error);
+      toast.error(isNewSchedule ? 'Gagal menambahkan jadwal' : 'Gagal memperbarui jadwal');
     }
   };
 
@@ -133,6 +196,17 @@ export const SchedulePage: React.FC = () => {
   };
 
   const conflictCount = schedules.filter((s) => s.hasConflict).length;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Memuat jadwal...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-6">
