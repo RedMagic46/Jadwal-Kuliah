@@ -1,3 +1,10 @@
+# 📚 Anggota Kelompok
+
+1. Sabiikha Marsya Ananda - 202410370110440
+2. Dinar Syahgita Sherani - 202410370110432
+3. Santun - 202410370110429
+4. Naufal Muammar - 202410370110027
+
 # 📅 Aplikasi Penjadwalan Kuliah - InfoKHS
 
 Aplikasi web untuk mengelola jadwal kuliah dengan fitur deteksi bentrok otomatis dan auto-generate schedule.
